@@ -33,4 +33,16 @@ public class CategoryService {
         List<Category> list = repository.findAll();
         return list.stream().map(CategoryDTO::new).collect(Collectors.toList());
     }
+    @Transactional
+    public CategoryDTO insert(CategoryDTO dto){
+        Category entity = dtoToEntity(dto);
+        entity = repository.save(entity);
+        return new CategoryDTO(entity);
+    }
+
+    private Category dtoToEntity(CategoryDTO dto){
+        Category entity = new Category();
+        entity.setName(dto.getName());
+        return entity;
+    }
 }
