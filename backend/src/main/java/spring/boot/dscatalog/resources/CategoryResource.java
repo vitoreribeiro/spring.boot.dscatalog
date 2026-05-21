@@ -1,16 +1,14 @@
 package spring.boot.dscatalog.resources;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.boot.dscatalog.dtos.CategoryDTO;
-import spring.boot.dscatalog.entities.Category;
 import spring.boot.dscatalog.services.CategoryService;
+import spring.boot.dscatalog.services.exceptions.EntityNotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,9 +22,9 @@ public class CategoryResource {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Category> findById(@PathVariable Long id) {
-        Category category = service.findById(id);
-        return ResponseEntity.ok(category);
+    public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
+        CategoryDTO dto = service.findById(id);
+        return ResponseEntity.ok().body(dto);
     }
 
     @GetMapping
@@ -34,6 +32,4 @@ public class CategoryResource {
         List<CategoryDTO> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
-
-
 }

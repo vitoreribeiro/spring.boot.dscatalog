@@ -5,9 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.boot.dscatalog.dtos.CategoryDTO;
 import spring.boot.dscatalog.entities.Category;
 import spring.boot.dscatalog.repositories.CategoryRepository;
+import spring.boot.dscatalog.services.exceptions.EntityNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,8 +22,10 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Category findById(Long id){
-      return repository.getReferenceById(id);
+    public CategoryDTO findById(Long id){
+        Optional<Category> obj = repository.findById(id);
+        Category entity = obj.orElseThrow(() -> new EntityNotFoundException("Category not found."));
+        return new CategoryDTO(entity);
     }
 
     @Transactional(readOnly = true)
