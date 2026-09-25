@@ -7,8 +7,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import spring.boot.dscatalog.dtos.CategoryDTO;
 import spring.boot.dscatalog.dtos.ProductDTO;
+import spring.boot.dscatalog.entities.Category;
 import spring.boot.dscatalog.entities.Product;
+import spring.boot.dscatalog.repositories.CategoryRepository;
 import spring.boot.dscatalog.repositories.ProductRepository;
 import spring.boot.dscatalog.services.exceptions.DatabaseException;
 import spring.boot.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -20,8 +23,12 @@ public class ProductService {
 
     private ProductRepository repository;
 
-    public ProductService(ProductRepository repository) {
+    private CategoryRepository categoryRepository;
+
+    public ProductService(ProductRepository repository,
+                          CategoryRepository categoryRepository) {
         this.repository = repository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -38,22 +45,33 @@ public class ProductService {
     }
     @Transactional
     public ProductDTO insert(ProductDTO dto){
-        Product entity = dtoToEntity(dto);
+        Product entity = new Product();
+        dtoToEntity(dto, entity);
         entity = repository.save(entity);
         return new ProductDTO(entity);
     }
 
-    private Product dtoToEntity(ProductDTO dto){
-        Product entity = new Product();
-        //entity.setName(dto.getName());
-        return entity;
+    private void dtoToEntity(ProductDTO dto, Product entity){
+
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setDate(dto.getDate());
+        entity.setPrice(dto.getPrice());
+        entity.setImgUrl(dto.getImgUrl());
+
+        entity.getCategories().clear();
+        for(CategoryDTO catDto : dto.getCategories()){
+            Category category = categoryRepository.getReferenceById(catDto.getId());
+            entity.getCategories().add(category);
+        }
+
     }
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto) {
         try {
             Product entity = repository.getReferenceById(id);
-            //entity.setName(dto.getName());
+            dtoToEntity(dto, entity);
             entity = repository.save(entity);
             return new ProductDTO(entity);
         }
